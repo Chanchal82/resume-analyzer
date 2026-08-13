@@ -1,7 +1,8 @@
-import axios from 'axios';
+import Api from "./axios";
 
-const Api = axios.create({
-  baseURL: "http://localhost:8000/api/"
-});
-
-export default Api;
+export const uploadResume = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);  
+    const res = await Api.post("/resume/upload", formData);
+    return res.data;
+}
