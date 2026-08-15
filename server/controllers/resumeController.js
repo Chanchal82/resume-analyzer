@@ -1,7 +1,8 @@
 import { extractTextFromPDF } from "../services/resumeService.js";
 import { analyzeResume } from "../services/geminiService.js";
+import Resume from "../models/ResumeAnalysis.js";
 
-export const uploadResume = async(req, res) => {
+export const uploadResume = async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded" });
   }
@@ -9,10 +10,20 @@ export const uploadResume = async(req, res) => {
     const text = await extractTextFromPDF(req.file.buffer);
     const analysis = await analyzeResume(text);
 
+    const resume = await Resume.create({
+      fileName: req.file.originalname,
+      overallScore: analysis.overallScore,
+      categoryScores: analysis.categoryScores,
+      strengths: analysis.strengths,
+      weaknesses: analysis.weaknesses,
+      missingSkills: analysis.missingSkills,
+      suggestions: analysis.suggestions,
+    });
+
     res.status(200).json({
       message: "Resume uploaded successfully",
       fileName: req.file.originalname,
-      analysis:analysis,
+      analysis: resume,
     });
   } catch (error) {
     console.error("PDF parsing failed:", error);
