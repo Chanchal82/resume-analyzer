@@ -33,3 +33,40 @@ export const uploadResume = async (req, res) => {
     });
   }
 };
+
+
+export const getAllAnalyses=async(req,res)=>{
+  try{
+    const analyses = await Resume.find().sort({ createdAt: -1 });
+    res.status(200).json({ analyses });
+  } catch (error) {
+    console.error("Failed to fetch analysis:", error);
+    res.status(500).json({ error: "Failed to fetch analysis" });
+  }
+}
+
+export const getAnalysisById=async(req,res)=>{
+  try{
+    const analysis = await Resume.findById(req.params.id);  
+    if(!analysis) {
+      return res.status(404).json({ error: "Analysis not found" });
+    }
+    res.status(200).json({ analysis });
+  }catch (error) {
+    console.error("Failed to fetch analysis:", error);
+    res.status(500).json({ error: "Failed to fetch analysis" });
+  }
+}
+
+export const deleteAnalysis=async(req,res)=>{
+  try{
+    const analysis = await Resume.findByIdAndDelete(req.params.id); 
+    if(!analysis) {
+      return res.status(404).json({ error: "Analysis not found" });
+    }
+    res.status(200).json({ message: "Analysis deleted successfully" });
+  }catch (error) {
+    console.error("Failed to delete analysis:", error);
+    res.status(500).json({ error: "Failed to delete analysis" });
+  }
+}
