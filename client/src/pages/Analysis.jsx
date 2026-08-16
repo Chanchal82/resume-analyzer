@@ -1,29 +1,58 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
 import ScoreCard from "../components/ScoreCard";
 import Strengths from "../components/Strengths";
 import Weaknesses from "../components/Weaknesses";
 import Suggestions from "../components/Suggestions";
 
+import Api from "../api/axios.js";
+
 function Analysis() {
-  const location = useLocation();
+  const { id } = useParams();
   const navigate = useNavigate();
 
-  const analysis = location.state?.analysis;
-  const fileName = location.state?.fileName;
+  const [analysis, setAnalysis] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  if (!analysis) {
+  useEffect(() => {
+    const fetchAnalysis = async () => {
+      try {
+        const response = await Api.get(`/resume/analyses/${id}`);
+        setAnalysis(response.data.analysis);
+      } catch (error) {
+        console.error("Failed to fetch analysis:", error);
+        setError("Failed to load resume analysis.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnalysis();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <p className="text-gray-500">Loading analysis...</p>
+      </div>
+    );
+  }
+
+  if (error || !analysis) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
         <div className="rounded-xl bg-white p-8 text-center shadow-sm">
           <p className="text-gray-500">
-            No resume analysis available.
+            {error || "No resume analysis found."}
           </p>
 
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/history")}
             className="mt-4 rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700"
           >
-            Back to Home
+            Back to History
           </button>
         </div>
       </div>
@@ -41,13 +70,13 @@ function Analysis() {
             </h1>
 
             <p className="mt-2 text-sm text-gray-500">
-              {fileName}
+              {analysis.fileName}
             </p>
           </div>
 
           <button
             onClick={() => navigate("/")}
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 hover:border-gray-400"
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:border-gray-400 hover:bg-gray-50"
           >
             ← Analyze Another Resume
           </button>

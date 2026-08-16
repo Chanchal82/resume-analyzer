@@ -49,18 +49,24 @@ function ResumeUpload() {
 
       setUploaded(true);
 
-      navigate("/analysis", {
-        state: {
-          analysis: data.analysis,
-          fileName: data.fileName,
-        },
-      });
+      navigate(`/analysis/${data.analysis._id}`);
     } catch (error) {
       console.error("Analysis failed:", error);
 
+      // User is not authenticated
+      if (error.response?.status === 401) {
+        navigate("/login", {
+          state: {
+            message: "Please login first to analyze your resume.",
+          },
+        });
+
+        return;
+      }
+
       setUploadError(
         error.response?.data?.error ||
-          "Failed to analyze resume. Please try again.",
+          "Failed to analyze resume. Please try again."
       );
     } finally {
       setLoading(false);
@@ -70,6 +76,7 @@ function ResumeUpload() {
   return (
     <div className="mt-10 flex justify-center px-4">
       <div className="w-full max-w-xl rounded-2xl border-2 border-dashed border-gray-300 bg-white p-10 text-center shadow-sm transition hover:border-blue-400">
+
         <div className="flex justify-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-blue-50 text-3xl">
             📄
@@ -80,10 +87,13 @@ function ResumeUpload() {
           Upload your resume
         </h2>
 
-        <p className="mt-2 text-sm text-gray-500">PDF only • Max 5 MB</p>
+        <p className="mt-2 text-sm text-gray-500">
+          PDF only • Max 5 MB
+        </p>
 
         <label className="mt-6 inline-block cursor-pointer rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700">
           Choose PDF
+
           <input
             type="file"
             accept=".pdf,application/pdf"
@@ -93,13 +103,21 @@ function ResumeUpload() {
         </label>
 
         <p
-          className={`mt-6 text-sm ${error ? "text-red-500" : "text-gray-600"}`}
+          className={`mt-6 text-sm ${
+            error ? "text-red-500" : "text-gray-600"
+          }`}
         >
-          {error ? error : file ? `📄 ${file.name}` : "No file selected yet"}
+          {error
+            ? error
+            : file
+              ? `📄 ${file.name}`
+              : "No file selected yet"}
         </p>
 
         {uploadError && (
-          <p className="mt-3 text-sm text-red-500">{uploadError}</p>
+          <p className="mt-3 text-sm text-red-500">
+            {uploadError}
+          </p>
         )}
 
         <button
@@ -120,7 +138,9 @@ function ResumeUpload() {
               ✓ Resume analyzed successfully
             </p>
 
-            <p className="mt-1 text-sm text-green-600">{file.name}</p>
+            <p className="mt-1 text-sm text-green-600">
+              {file.name}
+            </p>
           </div>
         )}
       </div>

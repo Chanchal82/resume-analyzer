@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import User from "./User.js";
 
-const ResumeAnalysis = mongoose.Schema(
+const ResumeAnalysis =new  mongoose.Schema(
   {
     fileName: {
       type: String,
@@ -40,6 +41,12 @@ const ResumeAnalysis = mongoose.Schema(
       type: [String],
       required: true,
     },
+
+    user:{
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
+    }
   },
   { timestamps: true }
 );

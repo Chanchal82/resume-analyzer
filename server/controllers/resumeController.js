@@ -18,6 +18,7 @@ export const uploadResume = async (req, res) => {
       weaknesses: analysis.weaknesses,
       missingSkills: analysis.missingSkills,
       suggestions: analysis.suggestions,
+      user: req.user._id,
     });
 
     res.status(200).json({
@@ -37,7 +38,8 @@ export const uploadResume = async (req, res) => {
 
 export const getAllAnalyses=async(req,res)=>{
   try{
-    const analyses = await Resume.find().sort({ createdAt: -1 });
+    const userId = req.user._id;
+    const analyses = await Resume.find({ user: userId }).sort({ createdAt: -1 });
     res.status(200).json({ analyses });
   } catch (error) {
     console.error("Failed to fetch analysis:", error);
@@ -47,7 +49,8 @@ export const getAllAnalyses=async(req,res)=>{
 
 export const getAnalysisById=async(req,res)=>{
   try{
-    const analysis = await Resume.findById(req.params.id);  
+    const userId = req.user._id;
+    const analysis = await Resume.findOne({ _id: req.params.id, user: userId });
     if(!analysis) {
       return res.status(404).json({ error: "Analysis not found" });
     }
@@ -60,7 +63,8 @@ export const getAnalysisById=async(req,res)=>{
 
 export const deleteAnalysis=async(req,res)=>{
   try{
-    const analysis = await Resume.findByIdAndDelete(req.params.id); 
+    const userId = req.user._id;
+    const analysis = await Resume.findOneAndDelete({ _id: req.params.id, user: userId });
     if(!analysis) {
       return res.status(404).json({ error: "Analysis not found" });
     }
